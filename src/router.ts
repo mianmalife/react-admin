@@ -1,7 +1,6 @@
 import { createBrowserRouter, LoaderFunctionArgs, redirect } from "react-router";
 import Layout from "./layout";
 import loginPage from "./views/login";
-import { fakeAuthProvider } from "./auth";
 import NotFoundPage from "./views/404";
 import Example from "./views/example";
 
@@ -19,7 +18,8 @@ const router = createBrowserRouter([
   },
   {
     path: '/login',
-    Component: loginPage
+    Component: loginPage,
+    loader: loginLoader,
   },
   {
     path: '*',
@@ -27,10 +27,17 @@ const router = createBrowserRouter([
   }
 ])
 
+function loginLoader() {
+  if (localStorage.getItem('isAuthenticated') === 'true') {
+    return redirect('/')
+  }
+  return null
+}
+
 function protectedLoader({ request }: LoaderFunctionArgs) {
   const params = new URLSearchParams()
   params.set('from', new URL(request.url).pathname)
-  if (!fakeAuthProvider.isAuthenticated) {
+  if (localStorage.getItem('isAuthenticated') === 'false' || !localStorage.getItem('isAuthenticated')) {
     return redirect(`/login?` + params.toString())
   }
   return null
