@@ -13,13 +13,11 @@ export default function LoginPage() {
   const [loginIn, setLoginIn] = useState(false)
   const navigate = useNavigate()
   const onFinish = async (values: FormParams) => {
-    console.log('Received values of form: ', values);
     setLoginIn(true)
     try {
       const res = await fakeAuthProvider.signin(values.username, values.password)
       if (res.isAuthenticated) {
         const params = new URLSearchParams(window.location.search)
-        console.log(params.get('from'))
         await navigate(params.get('from') ?? '/')
       } else {
         setError(res.message);

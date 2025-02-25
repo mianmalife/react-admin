@@ -4,3 +4,9 @@ html, body, #root {
   'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
   'Noto Color Emoji';
 }
+
+.ant-layout-sider .ant-layout-sider-trigger {
+  display: flex;
+  align-items: center;
+  padding: 4px;
+}

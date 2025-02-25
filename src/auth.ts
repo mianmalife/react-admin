@@ -3,7 +3,7 @@ interface AuthProvider {
   username: null | string,
   password: null | string,
   signin(username: string, password: string): Promise<{ isAuthenticated: boolean, message: string }>,
-  signout(): Promise<void>
+  signout(): Promise<boolean>
 }
 
 export const fakeAuthProvider: AuthProvider = {
@@ -30,9 +30,11 @@ export const fakeAuthProvider: AuthProvider = {
       }
     }, 500))
   },
-  async signout() {
-    await new Promise(resolve => setTimeout(resolve, 500))
-    localStorage.setItem('isAuthenticated', '')
-    localStorage.setItem('username', '')
+  signout() {
+    return new Promise(resolve => setTimeout(() => {
+      localStorage.setItem('isAuthenticated', '')
+      localStorage.setItem('username', '')
+      resolve(true)
+    }, 500))
   }
 }
