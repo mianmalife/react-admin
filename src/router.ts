@@ -1,5 +1,5 @@
 import { createBrowserRouter, LoaderFunctionArgs, redirect } from "react-router";
-import Layout from "./layout";
+import layout from "./layout";
 import loginPage from "./views/login";
 import NotFoundPage from "./views/404";
 import Example from "./views/example";
@@ -7,11 +7,11 @@ import Example from "./views/example";
 const router = createBrowserRouter([
   {
     path: '/',
-    Component: Layout,
+    Component: layout,
     loader: protectedLoader,
     children: [
       {
-        path: 'test',
+        index: true,
         Component: Example
       },
     ]
