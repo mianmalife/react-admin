@@ -1,15 +1,14 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-  NotificationOutlined,
   UserOutlined,
-  LaptopOutlined,
   LogoutOutlined,
   MenuUnfoldOutlined,
   MenuFoldOutlined,
 } from '@ant-design/icons';
 import type { MenuProps, ConfigProviderProps } from 'antd';
 import { ConfigProvider, Layout, Menu, theme, Space, Dropdown, Avatar, Button } from 'antd';
-import { Outlet, useNavigate } from 'react-router';
+import { menulist } from '~/mock/menu'
+import { Outlet, useNavigate, Link } from 'react-router';
 import { fakeAuthProvider } from './auth';
 // import enUS from 'antd/locale/en_US'
 import zhCN from 'antd/locale/zh_CN'
@@ -30,32 +29,56 @@ const siderStyle: React.CSSProperties = {
   paddingTop: 64
 };
 
-const items: MenuProps['items'] = [UserOutlined, LaptopOutlined, NotificationOutlined].map(
-  (icon, index) => {
-    const key = String(index + 1);
+// interface LinksProps {
+//   path: string;
+//   children: React.ReactElement;
+// }
 
-    return {
-      key: `sub${key}`,
-      icon: React.createElement(icon),
-      label: `subnav ${key}`,
-      children: Array.from({ length: 4 }).map((_, j) => {
-        const subKey = index * 4 + j + 1;
-        return {
-          key: subKey,
-          label: `option${subKey}`,
-        };
-      }),
-    };
-  },
-);
+// function Links({ path, children }: LinksProps) {
+//   return (
+//     <Link to={path}>{children}</Link>
+//   )
+// }
+
+// const convertMenuItem = (item: any) => {
+//   return {
+//     ...item,
+//     label: item.children ? item.label : <Links path={item.path}>{item.label}</Links>,
+//     children: item.children ? item.children.map((child: any) => convertMenuItem(child)) : undefined,
+//   }
+// }
+
+// const getMenuItemList = (list: any[]) => {
+//   return list.map(item => {
+//     return convertMenuItem(item)
+//   })
+// }
 
 const LayoutApp: React.FC = () => {
   const [locale] = useState<Locale>(zhCN)
   const [collapsed, setCollapsed] = useState(false)
+  const [openKeys, setOpenKeys] = useState<string[]>([])
+  const [selectedKeys, setSelectedKeys] = useState<string[]>([])
   const navigate = useNavigate()
   const {
     token: { colorBgContainer, borderRadiusLG, colorPrimary },
   } = theme.useToken();
+
+  useEffect(() => {
+    setOpenKeys([menulist[0].key])
+    setSelectedKeys([menulist[0].children[0].key])
+  }, [])
+
+  const onOpenChange = (openKeys: string[]) => {
+    console.log(openKeys)
+    setOpenKeys(openKeys)
+  }
+
+  const onSelect = ({ item, key, keyPath, selectedKeys, domEvent }: any) =>{
+    console.log(item, key, keyPath, selectedKeys, domEvent)
+    setSelectedKeys(selectedKeys)
+    navigate(item.props.path)
+  }
 
   const logOut = async () => {
     const res = await fakeAuthProvider.signout()
@@ -104,7 +127,15 @@ const LayoutApp: React.FC = () => {
             paddingLeft: 24,
           }}
         />}>
-          <Menu theme="light" mode="inline" defaultSelectedKeys={['1']} defaultOpenKeys={['sub1']} items={items} />
+          <Menu
+            theme="light"
+            mode="inline"
+            onOpenChange={onOpenChange}
+            openKeys={openKeys}
+            selectedKeys={selectedKeys}
+            onSelect={onSelect}
+            items={menulist}
+          />
         </Sider>
         <Layout>
           <Header style={{ background: colorBgContainer }} className='shadow p-0 fixed top-0 left-0 w-100% flex justify-between items-center px-24px z-20'>

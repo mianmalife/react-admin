@@ -38,6 +38,12 @@ export default tseslint.config(
         {
           checksVoidReturn: false
         }
+      ],
+      "@typescript-eslint/no-explicit-any": [
+        'error',
+        {
+          checksVoidReturn: false
+        }
       ]
     },
   },

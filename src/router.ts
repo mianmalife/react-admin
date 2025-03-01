@@ -1,24 +1,75 @@
 import { createBrowserRouter, LoaderFunctionArgs, redirect } from "react-router";
-import layout from "./layout";
-import loginPage from "./views/login";
+import Layout from "./layout";
+import LoginPage from "./views/login";
 import NotFoundPage from "./views/404";
-import Example from "./views/example";
+import Analysis from "./views/dashboard/analysis";
+import Monitor from "./views/dashboard/monitor";
+import BasicForm from "./views/form/basic-form";
+import Articles from "./views/list/search/articles";
+import Projects from "./views/list/search/projects";
 
 const router = createBrowserRouter([
   {
     path: '/',
-    Component: layout,
+    Component: Layout,
     loader: protectedLoader,
     children: [
       {
         index: true,
-        Component: Example
+        Component: Analysis
       },
+      {
+        path: 'analysis',
+        Component: Analysis
+      }
+    ]
+  },
+  {
+    path: '/dashboard',
+    Component: Layout,
+    children: [
+      {
+        path: 'analysis',
+        Component: Analysis
+      },
+      {
+        path: 'monitor',
+        Component: Monitor
+      }
+    ]
+  },
+  {
+    path: '/form',
+    Component: Layout,
+    children: [
+      {
+        path: 'basic-form',
+        Component: BasicForm
+      }
+    ]
+  },
+  {
+    path: '/list',
+    Component: Layout,
+    children: [
+      {
+        path: 'search',
+        children: [
+          {
+            path: 'articles',
+            Component: Articles
+          },
+          {
+            path: 'projects',
+            Component: Projects
+          }
+        ]
+      }
     ]
   },
   {
     path: '/login',
-    Component: loginPage,
+    Component: LoginPage,
     loader: loginLoader,
   },
   {
