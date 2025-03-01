@@ -7,12 +7,12 @@ import {
 } from '@ant-design/icons';
 import type { MenuProps, ConfigProviderProps } from 'antd';
 import { ConfigProvider, Layout, Menu, theme, Space, Dropdown, Avatar, Button } from 'antd';
-import { menulist } from '~/mock/menu'
-import { Outlet, useNavigate, Link } from 'react-router';
+import { Outlet, useNavigate } from 'react-router';
 import { fakeAuthProvider } from './auth';
 // import enUS from 'antd/locale/en_US'
 import zhCN from 'antd/locale/zh_CN'
 import dayjs from 'dayjs';
+import { useSiderMenuStore } from './store';
 type Locale = ConfigProviderProps['locale']
 dayjs.locale('en')
 
@@ -26,7 +26,7 @@ const siderStyle: React.CSSProperties = {
   top: 0,
   bottom: 0,
   scrollbarWidth: 'thin',
-  paddingTop: 64
+  paddingTop: 48
 };
 
 // interface LinksProps {
@@ -57,17 +57,11 @@ const siderStyle: React.CSSProperties = {
 const LayoutApp: React.FC = () => {
   const [locale] = useState<Locale>(zhCN)
   const [collapsed, setCollapsed] = useState(false)
-  const [openKeys, setOpenKeys] = useState<string[]>([])
-  const [selectedKeys, setSelectedKeys] = useState<string[]>([])
+  const { menuData, selectedKeys, openKeys, setSelectedKeys, setOpenKeys } = useSiderMenuStore()
   const navigate = useNavigate()
   const {
     token: { colorBgContainer, borderRadiusLG, colorPrimary },
   } = theme.useToken();
-
-  useEffect(() => {
-    setOpenKeys([menulist[0].key])
-    setSelectedKeys([menulist[0].children[0].key])
-  }, [])
 
   const onOpenChange = (openKeys: string[]) => {
     console.log(openKeys)
@@ -75,7 +69,6 @@ const LayoutApp: React.FC = () => {
   }
 
   const onSelect = ({ item, key, keyPath, selectedKeys, domEvent }: any) =>{
-    console.log(item, key, keyPath, selectedKeys, domEvent)
     setSelectedKeys(selectedKeys)
     navigate(item.props.path)
   }
@@ -110,7 +103,8 @@ const LayoutApp: React.FC = () => {
           Layout: {
             headerBg: '#fff',
             headerPadding: '0 28px',
-            triggerBg: '#fff'
+            triggerBg: '#fff',
+            headerHeight: 48
           }
         }
       }}>
@@ -120,7 +114,6 @@ const LayoutApp: React.FC = () => {
           icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
           onClick={() => setCollapsed(!collapsed)}
           style={{
-            fontSize: '16px',
             width: '100%',
             height: '100%',
             justifyContent: 'start',
@@ -134,12 +127,12 @@ const LayoutApp: React.FC = () => {
             openKeys={openKeys}
             selectedKeys={selectedKeys}
             onSelect={onSelect}
-            items={menulist}
+            items={menuData}
           />
         </Sider>
         <Layout>
-          <Header style={{ background: colorBgContainer }} className='shadow p-0 fixed top-0 left-0 w-100% flex justify-between items-center px-24px z-20'>
-            <div className="h-64px flex items-center font-size-20px shadow-sm" style={{ color: colorPrimary }}>React Admin</div>
+          <Header style={{ background: colorBgContainer }} className='p-0 fixed top-0 left-0 w-100% flex justify-between items-center px-24px z-20 border-b-#dcdfe6 border-b-solid border-b-1px'>
+            <div className="h-48px flex items-center font-size-18px" style={{ color: colorPrimary }}>React Admin</div>
             <Dropdown menu={{ items: optionOpera }}>
               <a onClick={(e) => e.preventDefault()}>
                 <Space>

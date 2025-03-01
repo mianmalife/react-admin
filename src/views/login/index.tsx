@@ -3,6 +3,8 @@ import { Button, Form, Input, Alert } from 'antd';
 import { useNavigate } from 'react-router';
 import { fakeAuthProvider } from '@/auth'
 import { useState } from 'react';
+import { menulist } from '~/mock/menu';
+import { useSiderMenuStore } from '@/store';
 
 interface FormParams {
   username: string,
@@ -11,6 +13,7 @@ interface FormParams {
 export default function LoginPage() {
   const [error, setError] = useState('')
   const [loginIn, setLoginIn] = useState(false)
+  const { setMenuData, setSelectedKeys, setOpenKeys } = useSiderMenuStore()
   const navigate = useNavigate()
   const onFinish = async (values: FormParams) => {
     setLoginIn(true)
@@ -18,6 +21,9 @@ export default function LoginPage() {
       const res = await fakeAuthProvider.signin(values.username, values.password)
       if (res.isAuthenticated) {
         const params = new URLSearchParams(window.location.search)
+        setMenuData(menulist)
+        setSelectedKeys([menulist[0].children[0].key])
+        setOpenKeys([menulist[0].key])
         await navigate(params.get('from') ?? '/')
       } else {
         setError(res.message);
