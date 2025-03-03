@@ -7,7 +7,7 @@ import {
 } from '@ant-design/icons';
 import type { MenuProps, ConfigProviderProps } from 'antd';
 import { ConfigProvider, Layout, Menu, theme, Space, Dropdown, Avatar, Button } from 'antd';
-import { Outlet, useNavigate } from 'react-router';
+import { Outlet, useNavigate, useLocation } from 'react-router';
 import { fakeAuthProvider } from './auth';
 // import enUS from 'antd/locale/en_US'
 import zhCN from 'antd/locale/zh_CN'
@@ -59,16 +59,20 @@ const LayoutApp: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false)
   const { menuData, selectedKeys, openKeys, setSelectedKeys, setOpenKeys } = useSiderMenuStore()
   const navigate = useNavigate()
+  const location = useLocation()
   const {
     token: { colorBgContainer, borderRadiusLG, colorPrimary },
   } = theme.useToken();
 
+  useEffect(() => {
+    console.log(location)
+  }, [location])
   const onOpenChange = (openKeys: string[]) => {
     console.log(openKeys)
     setOpenKeys(openKeys)
   }
 
-  const onSelect = ({ item, key, keyPath, selectedKeys, domEvent }: any) =>{
+  const onSelect = ({ item, key, keyPath, selectedKeys, domEvent }: any) => {
     setSelectedKeys(selectedKeys)
     navigate(item.props.path)
   }
@@ -124,7 +128,7 @@ const LayoutApp: React.FC = () => {
             theme="light"
             mode="inline"
             onOpenChange={onOpenChange}
-            openKeys={openKeys}
+            defaultOpenKeys={openKeys}
             selectedKeys={selectedKeys}
             onSelect={onSelect}
             items={menuData}
