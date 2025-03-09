@@ -18,16 +18,17 @@ const router = createBrowserRouter([
         index: true,
         Component: Analysis
       },
-      {
-        path: 'analysis',
-        Component: Analysis
-      }
     ]
   },
   {
     path: '/dashboard',
     Component: Layout,
+    loader: protectedLoader,
     children: [
+      {
+        index: true,
+        Component: Analysis
+      },
       {
         path: 'analysis',
         Component: Analysis
@@ -41,7 +42,12 @@ const router = createBrowserRouter([
   {
     path: '/form',
     Component: Layout,
+    loader: protectedLoader,
     children: [
+      {
+        index: true,
+        Component: BasicForm
+      },
       {
         path: 'basic-form',
         Component: BasicForm
@@ -51,10 +57,19 @@ const router = createBrowserRouter([
   {
     path: '/list',
     Component: Layout,
+    loader: protectedLoader,
     children: [
+      {
+        index: true,
+        Component: Articles
+      },
       {
         path: 'search',
         children: [
+          {
+            index: true,
+            Component: Articles
+          },
           {
             path: 'articles',
             Component: Articles

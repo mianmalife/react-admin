@@ -20,11 +20,22 @@ export default function LoginPage() {
     try {
       const res = await fakeAuthProvider.signin(values.username, values.password)
       if (res.isAuthenticated) {
-        const params = new URLSearchParams(window.location.search)
+        const redirectUrl = new URLSearchParams(window.location.search).get('from')
+        console.log(redirectUrl, 'redirectUrl')
         setMenuData(menulist)
-        setSelectedKeys([menulist[0].children[0].key])
-        setOpenKeys([menulist[0].key])
-        await navigate(params.get('from') ?? '/')
+        setSelectedKeys(redirectUrl ? [redirectUrl] : [menulist[0].children[0].key])
+        if (redirectUrl) {
+          const matchRes = redirectUrl.match(/^\/[^\/]+/)
+          if (matchRes) {
+            setOpenKeys([matchRes[0]])
+          } else {
+            setOpenKeys([menulist[0].key])
+          }
+        } else {
+          setOpenKeys([menulist[0].key])
+        }
+        console.log(menulist[0].children[0].key)
+        await navigate(redirectUrl ? redirectUrl : menulist[0].children[0].key)
       } else {
         setError(res.message);
       }

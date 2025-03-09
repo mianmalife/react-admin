@@ -1,65 +1,56 @@
 export const menulist = [
   {
-    key: '1',
+    key: '/dashboard',
     label: 'Dashboard',
-    path: '/dashboard',
-    component: 'Layout',
+    meta: {
+      icon: 'dashboard-outlined'
+    },
     children: [
       {
-        key: '1-1',
+        key: '/',
         label: '分析页',
-        path: '/dashboard/analysis',
-        component: '/dashboard/analysis/index',
         children: undefined
       },
       {
-        key: '1-2',
+        key: '/dashboard/monitor',
         label: '监控页',
-        path: '/dashboard/monitor',
-        component: '/dashboard/monitor/index',
         children: undefined
       },
     ],
   },
   {
-    key: '2',
+    key: '/form',
     label: '表单页',
-    path: '/form',
-    component: 'Layout',
+    meta: {
+      icon: 'form-outlined'
+    },
     children: [
       {
-        key: '2-1',
+        key: '/form/basic-form',
         label: '基础表单',
-        path: '/form/basic-form',
-        component: '/form/basic-form/index',
         children: undefined
       }
     ],
   },
   {
-    key: '3',
+    key: '/list',
     label: '列表页',
-    path: '/list',
-    component: 'Layout',
+    meta: {
+      icon: 'table-outlined'
+    },
     children: [
       {
-        key: '3-1',
+        key: '/list/search',
         label: '搜索列表',
-        path: '/list/search',
-        component: 'Layout',
         children: [
           {
-            key: '3-1-1',
+            key: '/list/search/articles',
             label: '搜索列表(文章)',
-            path: '/list/search/articles',
-            component: '/list/search/articles/index',
             children: undefined
           },
           {
-            key: '3-1-2',
+            key: '/list/search/projects',
             label: '搜索列表(项目)',
-            path: '/list/search/projects',
-            component: '/list/search/projects/index',
             children: undefined
           }
         ]

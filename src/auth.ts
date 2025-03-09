@@ -32,8 +32,9 @@ export const fakeAuthProvider: AuthProvider = {
   },
   signout() {
     return new Promise(resolve => setTimeout(() => {
-      localStorage.setItem('isAuthenticated', '')
-      localStorage.setItem('username', '')
+      localStorage.removeItem('isAuthenticated')
+      localStorage.removeItem('username')
+      localStorage.removeItem('menuData')
       resolve(true)
     }, 500))
   }

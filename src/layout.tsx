@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   UserOutlined,
   LogoutOutlined,
@@ -7,12 +7,13 @@ import {
 } from '@ant-design/icons';
 import type { MenuProps, ConfigProviderProps } from 'antd';
 import { ConfigProvider, Layout, Menu, theme, Space, Dropdown, Avatar, Button } from 'antd';
-import { Outlet, useNavigate, useLocation } from 'react-router';
+import { Outlet, useNavigate, useLocation, useMatch, Link } from 'react-router';
 import { fakeAuthProvider } from './auth';
 // import enUS from 'antd/locale/en_US'
 import zhCN from 'antd/locale/zh_CN'
 import dayjs from 'dayjs';
 import { useSiderMenuStore } from './store';
+import SvgIcon from './components/SvgIcon';
 type Locale = ConfigProviderProps['locale']
 dayjs.locale('en')
 
@@ -29,52 +30,52 @@ const siderStyle: React.CSSProperties = {
   paddingTop: 48
 };
 
-// interface LinksProps {
-//   path: string;
-//   children: React.ReactElement;
-// }
+interface LinksProps {
+  path: string;
+  children: React.ReactElement;
+}
 
-// function Links({ path, children }: LinksProps) {
-//   return (
-//     <Link to={path}>{children}</Link>
-//   )
-// }
+function Links({ path, children }: LinksProps) {
+  return (
+    <Link to={path}>{children}</Link>
+  )
+}
 
-// const convertMenuItem = (item: any) => {
-//   return {
-//     ...item,
-//     label: item.children ? item.label : <Links path={item.path}>{item.label}</Links>,
-//     children: item.children ? item.children.map((child: any) => convertMenuItem(child)) : undefined,
-//   }
-// }
+const convertMenuItem = (item: any) => {
+  console.log(item)
+  return {
+    ...item,
+    label: item.children ? item.label : <Links path={item.key}>{item.label}</Links>,
+    icon: item.children ? <SvgIcon name={item.meta?.icon} /> : null,
+    children: item.children ? item.children.map((child: any) => convertMenuItem(child)) : undefined,
+  }
+}
 
-// const getMenuItemList = (list: any[]) => {
-//   return list.map(item => {
-//     return convertMenuItem(item)
-//   })
-// }
+const getMenuItemList = (list: any[]) => {
+  return list.map(item => {
+    return convertMenuItem(item)
+  })
+}
 
 const LayoutApp: React.FC = () => {
   const [locale] = useState<Locale>(zhCN)
   const [collapsed, setCollapsed] = useState(false)
-  const { menuData, selectedKeys, openKeys, setSelectedKeys, setOpenKeys } = useSiderMenuStore()
+  const { menuData, openKeys, setOpenKeys, selectedKeys, setSelectedKeys } = useSiderMenuStore()
   const navigate = useNavigate()
   const location = useLocation()
   const {
     token: { colorBgContainer, borderRadiusLG, colorPrimary },
   } = theme.useToken();
 
-  useEffect(() => {
-    console.log(location)
-  }, [location])
+  console.log(useMatch(location.pathname))
   const onOpenChange = (openKeys: string[]) => {
     console.log(openKeys)
     setOpenKeys(openKeys)
   }
 
+  //@ts-ignore
   const onSelect = ({ item, key, keyPath, selectedKeys, domEvent }: any) => {
     setSelectedKeys(selectedKeys)
-    navigate(item.props.path)
   }
 
   const logOut = async () => {
@@ -128,10 +129,10 @@ const LayoutApp: React.FC = () => {
             theme="light"
             mode="inline"
             onOpenChange={onOpenChange}
-            defaultOpenKeys={openKeys}
-            selectedKeys={selectedKeys}
+            openKeys={openKeys}
             onSelect={onSelect}
-            items={menuData}
+            selectedKeys={selectedKeys}
+            items={getMenuItemList(menuData)}
           />
         </Sider>
         <Layout>
