@@ -15,7 +15,7 @@ const router = createBrowserRouter([
     loader: protectedLoader,
     children: [
       {
-        index: true,
+        path: 'analysis',
         Component: Analysis
       },
     ]
@@ -25,10 +25,6 @@ const router = createBrowserRouter([
     Component: Layout,
     loader: protectedLoader,
     children: [
-      {
-        index: true,
-        Component: Analysis
-      },
       {
         path: 'analysis',
         Component: Analysis
@@ -45,10 +41,6 @@ const router = createBrowserRouter([
     loader: protectedLoader,
     children: [
       {
-        index: true,
-        Component: BasicForm
-      },
-      {
         path: 'basic-form',
         Component: BasicForm
       }
@@ -60,16 +52,9 @@ const router = createBrowserRouter([
     loader: protectedLoader,
     children: [
       {
-        index: true,
-        Component: Articles
-      },
-      {
         path: 'search',
+        loader: protectedLoader,
         children: [
-          {
-            index: true,
-            Component: Articles
-          },
           {
             path: 'articles',
             Component: Articles
@@ -102,10 +87,12 @@ function loginLoader() {
 
 function protectedLoader({ request }: LoaderFunctionArgs) {
   const params = new URLSearchParams()
-  params.set('from', new URL(request.url).pathname)
+  const pathname = new URL(request.url).pathname
+  params.set('from', pathname)
   if (localStorage.getItem('isAuthenticated') === 'false' || !localStorage.getItem('isAuthenticated')) {
     return redirect(`/login?` + params.toString())
   }
+  console.log(request, 'request...', pathname)
   return null
 }
 

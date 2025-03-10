@@ -5,6 +5,7 @@ import { fakeAuthProvider } from '@/auth'
 import { useState } from 'react';
 import { menulist } from '~/mock/menu';
 import { useSiderMenuStore } from '@/store';
+import { getTreeFirstGrandson } from '@/shared/util';
 
 interface FormParams {
   username: string,
@@ -20,10 +21,12 @@ export default function LoginPage() {
     try {
       const res = await fakeAuthProvider.signin(values.username, values.password)
       if (res.isAuthenticated) {
+        const firstGrandsonKey = getTreeFirstGrandson(menulist)
         const redirectUrl = new URLSearchParams(window.location.search).get('from')
         console.log(redirectUrl, 'redirectUrl')
         setMenuData(menulist)
-        setSelectedKeys(redirectUrl ? [redirectUrl] : [menulist[0].children[0].key])
+        setSelectedKeys(redirectUrl ? [redirectUrl] : [firstGrandsonKey])
+        localStorage.setItem('firstPath', firstGrandsonKey)
         if (redirectUrl) {
           const matchRes = redirectUrl.match(/^\/[^\/]+/)
           if (matchRes) {
@@ -34,8 +37,7 @@ export default function LoginPage() {
         } else {
           setOpenKeys([menulist[0].key])
         }
-        console.log(menulist[0].children[0].key)
-        await navigate(redirectUrl ? redirectUrl : menulist[0].children[0].key)
+        await navigate(redirectUrl ? redirectUrl : firstGrandsonKey)
       } else {
         setError(res.message);
       }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   UserOutlined,
   LogoutOutlined,
@@ -7,7 +7,7 @@ import {
 } from '@ant-design/icons';
 import type { MenuProps, ConfigProviderProps } from 'antd';
 import { ConfigProvider, Layout, Menu, theme, Space, Dropdown, Avatar, Button } from 'antd';
-import { Outlet, useNavigate, useLocation, useMatch, Link } from 'react-router';
+import { Outlet, useNavigate, Link, useLocation } from 'react-router';
 import { fakeAuthProvider } from './auth';
 // import enUS from 'antd/locale/en_US'
 import zhCN from 'antd/locale/zh_CN'
@@ -42,7 +42,6 @@ function Links({ path, children }: LinksProps) {
 }
 
 const convertMenuItem = (item: any) => {
-  console.log(item)
   return {
     ...item,
     label: item.children ? item.label : <Links path={item.key}>{item.label}</Links>,
@@ -67,16 +66,23 @@ const LayoutApp: React.FC = () => {
     token: { colorBgContainer, borderRadiusLG, colorPrimary },
   } = theme.useToken();
 
-  console.log(useMatch(location.pathname))
+  useEffect(() => {
+    console.log(location, 'location')
+    if (location.pathname === '/') {
+      navigate(localStorage.getItem('firstPath') || '/login')
+    }
+    setSelectedKeys([location.pathname])
+  }, [location])
+
   const onOpenChange = (openKeys: string[]) => {
     console.log(openKeys)
     setOpenKeys(openKeys)
   }
 
   //@ts-ignore
-  const onSelect = ({ item, key, keyPath, selectedKeys, domEvent }: any) => {
-    setSelectedKeys(selectedKeys)
-  }
+  // const onSelect = ({ item, key, keyPath, selectedKeys, domEvent }: any) => {
+  //   setSelectedKeys(selectedKeys)
+  // }
 
   const logOut = async () => {
     const res = await fakeAuthProvider.signout()
@@ -130,7 +136,6 @@ const LayoutApp: React.FC = () => {
             mode="inline"
             onOpenChange={onOpenChange}
             openKeys={openKeys}
-            onSelect={onSelect}
             selectedKeys={selectedKeys}
             items={getMenuItemList(menuData)}
           />

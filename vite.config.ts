@@ -26,6 +26,11 @@ export default defineConfig({
       include: "**/*.svg?react"
     })
   ],
+  css: {
+    preprocessorOptions: {
+      less: {}
+    }
+  },
   build: {
     rollupOptions: {
       output: {

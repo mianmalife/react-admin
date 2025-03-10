@@ -7,7 +7,7 @@ export const menulist = [
     },
     children: [
       {
-        key: '/',
+        key: '/dashboard/analysis',
         label: '分析页',
         children: undefined
       },
