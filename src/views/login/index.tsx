@@ -23,7 +23,6 @@ export default function LoginPage() {
       if (res.isAuthenticated) {
         const firstGrandsonKey = getTreeFirstGrandson(menulist)
         const redirectUrl = new URLSearchParams(window.location.search).get('from')
-        console.log(redirectUrl, 'redirectUrl')
         setMenuData(menulist)
         setSelectedKeys(redirectUrl ? [redirectUrl] : [firstGrandsonKey])
         localStorage.setItem('firstPath', firstGrandsonKey)

@@ -1,6 +1,6 @@
 import 'normalize.css/normalize.css'
 import './App.less'
-import { RouterProvider } from 'react-router/dom'
+import { RouterProvider } from 'react-router'
 import router from './router';
 
 function App() {

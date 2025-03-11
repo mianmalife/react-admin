@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   UserOutlined,
   LogoutOutlined,
@@ -62,20 +62,31 @@ const LayoutApp: React.FC = () => {
   const { menuData, openKeys, setOpenKeys, selectedKeys, setSelectedKeys } = useSiderMenuStore()
   const navigate = useNavigate()
   const location = useLocation()
+  const preOpenkeys = useRef<any>([...openKeys])
   const {
     token: { colorBgContainer, borderRadiusLG, colorPrimary },
   } = theme.useToken();
 
   useEffect(() => {
-    console.log(location, 'location')
     if (location.pathname === '/') {
       navigate(localStorage.getItem('firstPath') || '/login')
     }
     setSelectedKeys([location.pathname])
   }, [location])
 
+  useEffect(() => {
+    if (!collapsed) {
+      if (preOpenkeys.current.length > 0) {
+        console.log('恢复上次的key', preOpenkeys.current)
+        setOpenKeys(preOpenkeys.current)
+      }
+    }
+  }, [collapsed])
   const onOpenChange = (openKeys: string[]) => {
-    console.log(openKeys)
+    console.log('openChange', openKeys)
+    if (openKeys.length > 0) {
+      preOpenkeys.current = openKeys
+    }
     setOpenKeys(openKeys)
   }
 
