@@ -65,21 +65,17 @@ const router = createBrowserRouter([
       },
       {
         path: 'search',
-        loader: protectedLoader,
         children: [
           {
             index: true,
-            loader: protectedLoader,
             Component: Articles,
           },
           {
             path: 'articles',
-            loader: protectedLoader,
             Component: Articles
           },
           {
             path: 'projects',
-            loader: protectedLoader,
             Component: Projects
           }
         ]

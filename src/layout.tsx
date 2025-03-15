@@ -77,13 +77,11 @@ const LayoutApp: React.FC = () => {
   useEffect(() => {
     if (!collapsed) {
       if (preOpenkeys.current.length > 0) {
-        console.log('恢复上次的key', preOpenkeys.current)
         setOpenKeys(preOpenkeys.current)
       }
     }
   }, [collapsed])
   const onOpenChange = (openKeys: string[]) => {
-    console.log('openChange', openKeys)
     if (openKeys.length > 0) {
       preOpenkeys.current = openKeys
     }
@@ -91,9 +89,9 @@ const LayoutApp: React.FC = () => {
   }
 
   //@ts-ignore
-  // const onSelect = ({ item, key, keyPath, selectedKeys, domEvent }: any) => {
-  //   setSelectedKeys(selectedKeys)
-  // }
+  const onSelect = ({ item, key, keyPath, selectedKeys, domEvent }: any) => {
+    setOpenKeys(keyPath)
+  }
 
   const logOut = async () => {
     const res = await fakeAuthProvider.signout()
@@ -146,6 +144,7 @@ const LayoutApp: React.FC = () => {
             theme="light"
             mode="inline"
             onOpenChange={onOpenChange}
+            onSelect={onSelect}
             openKeys={openKeys}
             selectedKeys={selectedKeys}
             items={getMenuItemList(menuData)}
