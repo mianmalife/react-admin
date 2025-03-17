@@ -1,52 +1,59 @@
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
-import { Button, Form, Input, Alert } from 'antd';
-import { useNavigate } from 'react-router';
-import { fakeAuthProvider } from '@/auth'
-import { useState } from 'react';
+import { Button, Form, Input, Alert, message } from 'antd';
+import { useNavigate, useSearchParams } from 'react-router';
 import { menulist } from '~/mock/menu';
-import { useSiderMenuStore } from '@/store';
+import { useSiderMenuStore } from '@/store/menu';
+import { useUserStore } from '@/store/user';
 import { getTreeFirstGrandson } from '@/shared/util';
 
 interface FormParams {
-  username: string,
-  password: string
+  username: string;
+  password: string;
 }
 
 export default function LoginPage() {
-  const [error, setError] = useState('')
-  const [loginIn, setLoginIn] = useState(false)
-  const { setMenuData, setSelectedKeys, setOpenKeys } = useSiderMenuStore()
-  const navigate = useNavigate()
-  const onFinish = async (values: FormParams) => {
-    setLoginIn(true)
+  const [form] = Form.useForm();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const { setMenuData, setSelectedKeys, setOpenKeys } = useSiderMenuStore();
+  const { login, loading, error } = useUserStore();
+
+  const handleLogin = async (values: FormParams) => {
     try {
-      const res = await fakeAuthProvider.signin(values.username, values.password)
-      if (res.isAuthenticated) {
-        const firstGrandsonKey = getTreeFirstGrandson(menulist)
-        const redirectUrl = new URLSearchParams(window.location.search).get('from')
-        setMenuData(menulist)
-        setSelectedKeys(redirectUrl ? [redirectUrl] : [firstGrandsonKey])
-        localStorage.setItem('firstPath', firstGrandsonKey)
+      const { success, message: loginMessage } = await login(values.username, values.password);
+
+      if (success) {
+        // 设置菜单数据
+        setMenuData(menulist);
+
+        // 处理重定向
+        const redirectUrl = searchParams.get('from');
+        const firstGrandsonKey = getTreeFirstGrandson(menulist);
+        const targetPath = redirectUrl || firstGrandsonKey;
+
+        // 设置菜单状态
+        setSelectedKeys([targetPath]);
         if (redirectUrl) {
-          const matchRes = redirectUrl.match(/^\/[^\/]+/)
-          if (matchRes) {
-            setOpenKeys([matchRes[0]])
-          } else {
-            setOpenKeys([menulist[0].key])
-          }
+          const matchRes = redirectUrl.match(/^\/[^\/]+/);
+          setOpenKeys(matchRes ? [matchRes[0]] : [menulist[0].key]);
         } else {
-          setOpenKeys([menulist[0].key])
+          setOpenKeys([menulist[0].key]);
         }
-        await navigate(redirectUrl ? redirectUrl : firstGrandsonKey)
-      } else {
-        setError(res.message);
+
+        // 存储首次访问路径
+        localStorage.setItem('firstPath', firstGrandsonKey);
+
+        // 显示成功消息
+        message.open({ content: loginMessage, type: 'success' });
+
+        // 跳转
+        await navigate(targetPath);
       }
     } catch (error) {
-      console.warn(error)
-    } finally {
-      setLoginIn(false)
+      console.error('Login error:', error);
     }
   };
+
   return (
     <div className="h-screen w-screen overflow-hidden flex bg-gray-50">
       {/* 左侧装饰区域 */}
@@ -60,7 +67,7 @@ export default function LoginPage() {
         <div className="absolute -bottom-20 -left-20 w-60 h-60 rounded-full bg-white/20" />
         <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-white/10" />
       </div>
-      
+
       {/* 右侧登录区域 */}
       <div className="flex-1 flex flex-col items-center justify-center p-8 relative">
         <div className="w-400px">
@@ -68,25 +75,31 @@ export default function LoginPage() {
             <h1 className="text-3xl font-bold text-gray-800">React Admin</h1>
             <p className="mt-2 text-gray-500">现代化的后台管理系统</p>
           </div>
-          
+
           <h2 className="text-2xl font-medium text-gray-800 mb-8">欢迎登录</h2>
-          
+
           <Form
+            form={form}
             name="login"
-            onFinish={onFinish}
+            onFinish={handleLogin}
             size="large"
+            autoComplete="off"
           >
             {error && (
               <Alert
                 type="error"
-                message="用户名或者密码错误!"
+                message={error}
                 className="mb-6"
+                showIcon
               />
             )}
-            
+
             <Form.Item
               name="username"
-              rules={[{ required: true, message: '请输入用户名!' }]}
+              rules={[
+                { required: true, message: '请输入用户名' },
+                { min: 3, message: '用户名至少3个字符' }
+              ]}
             >
               <Input
                 prefix={<UserOutlined className="text-gray-300" />}
@@ -95,10 +108,13 @@ export default function LoginPage() {
                 className="h-45px rounded-lg bg-gray-50 border-gray-200 hover:border-blue-400 transition-colors duration-300"
               />
             </Form.Item>
-            
+
             <Form.Item
               name="password"
-              rules={[{ required: true, message: '请输入密码!' }]}
+              rules={[
+                { required: true, message: '请输入密码' },
+                { min: 6, message: '密码至少6个字符' }
+              ]}
             >
               <Input.Password
                 prefix={<LockOutlined className="text-gray-300" />}
@@ -109,26 +125,26 @@ export default function LoginPage() {
               />
             </Form.Item>
 
-            <Form.Item className="mt-8">
+            <Form.Item>
               <Button
                 block
                 type="primary"
                 htmlType="submit"
-                loading={loginIn}
+                loading={loading}
                 className="h-45px bg-blue-500 hover:bg-blue-600 border-0 rounded-lg text-16px font-medium shadow-sm hover:shadow transition-all duration-300"
               >
-                {loginIn ? '登录中...' : '登 录'}
+                {loading ? '登录中...' : '登 录'}
               </Button>
             </Form.Item>
           </Form>
-          
+
           <div className="text-center space-y-2">
             <p className="text-gray-500 text-14px">
               系统默认账号：admin / 123456
             </p>
           </div>
         </div>
-        
+
         {/* 版权信息 */}
         <div className="absolute bottom-6 text-center text-gray-400 text-14px">
           <p className='mb-1'>Released under the MIT License.</p>

@@ -12,7 +12,7 @@ import { fakeAuthProvider } from './auth';
 // import enUS from 'antd/locale/en_US'
 import zhCN from 'antd/locale/zh_CN'
 import dayjs from 'dayjs';
-import { useSiderMenuStore } from './store';
+import { useSiderMenuStore } from './store/menu';
 import SvgIcon from './components/SvgIcon';
 type Locale = ConfigProviderProps['locale']
 dayjs.locale('en')
@@ -68,9 +68,6 @@ const LayoutApp: React.FC = () => {
   } = theme.useToken();
 
   useEffect(() => {
-    if (location.pathname === '/') {
-      navigate(localStorage.getItem('firstPath') || '/login')
-    }
     setSelectedKeys([location.pathname])
   }, [location])
 

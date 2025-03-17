@@ -7,6 +7,44 @@ import Monitor from "../views/dashboard/monitor";
 import BasicForm from "../views/form/basic-form";
 import Articles from "../views/list/search/articles";
 import Projects from "../views/list/search/projects";
+import { fakeAuthProvider } from "../auth";
+
+// 验证 token 是否有效
+const validateToken = () => {
+  const token = fakeAuthProvider.getToken();
+  if (!token) return false;
+  
+  try {
+    // 这里可以添加 token 解析和验证逻辑
+    // 例如检查 token 是否过期
+    return true;
+  } catch (error) {
+    return false;
+  }
+};
+
+function loginLoader() {
+  if (validateToken()) {
+    return redirect('/');
+  }
+  return null;
+}
+
+function protectedLoader({ request }: LoaderFunctionArgs) {
+  const params = new URLSearchParams();
+  const pathname = new URL(request.url).pathname;
+  params.set('from', pathname);
+
+  // 验证 token
+  if (!validateToken()) {
+    // 清除所有认证信息
+    fakeAuthProvider.removeToken();
+    localStorage.clear();
+    return redirect(`/login?${params.toString()}`);
+  }
+
+  return null;
+}
 
 const router = createBrowserRouter([
   {
@@ -14,6 +52,10 @@ const router = createBrowserRouter([
     Component: Layout,
     loader: protectedLoader,
     children: [
+      {
+        index: true,
+        loader: () => redirect('/dashboard/analysis')
+      },
       {
         path: 'analysis',
         Component: Analysis
@@ -27,7 +69,7 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        Component: Analysis
+        loader: () => redirect('/dashboard/analysis')
       },
       {
         path: 'analysis',
@@ -46,7 +88,7 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        Component: BasicForm
+        loader: () => redirect('/form/basic-form')
       },
       {
         path: 'basic-form',
@@ -61,14 +103,14 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        Component: Articles
+        loader: () => redirect('/list/search/articles')
       },
       {
         path: 'search',
         children: [
           {
             index: true,
-            Component: Articles,
+            loader: () => redirect('/list/search/articles')
           },
           {
             path: 'articles',
@@ -92,24 +134,5 @@ const router = createBrowserRouter([
     Component: NotFoundPage
   }
 ])
-
-function loginLoader() {
-  if (localStorage.getItem('isAuthenticated') === 'true') {
-    return redirect('/')
-  }
-  return null
-}
-
-function protectedLoader({ request }: LoaderFunctionArgs) {
-  const params = new URLSearchParams()
-  const pathname = new URL(request.url).pathname
-  params.set('from', pathname)
-  if (localStorage.getItem('isAuthenticated') === 'false' || !localStorage.getItem('isAuthenticated')) {
-    localStorage.clear()
-    return redirect(`/login?` + params.toString())
-  }
-  console.log(request, 'request...', pathname)
-  return null
-}
 
 export default router
