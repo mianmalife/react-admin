@@ -122,7 +122,6 @@ export const useUserStore = create<UserState>()(
             setUserInfo(userData);
             set({ token });
             localStorage.setItem('token', token);
-
             return {
               success: true,
               message: '登录成功',

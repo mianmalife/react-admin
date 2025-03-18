@@ -1,7 +1,6 @@
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import { Button, Form, Input, Alert, message } from 'antd';
 import { useNavigate, useSearchParams } from 'react-router';
-import { menulist } from '~/mock/menu';
 import { useSiderMenuStore } from '@/store/menu';
 import { useUserStore } from '@/store/user';
 import { getTreeFirstGrandson } from '@/shared/util';
@@ -15,7 +14,7 @@ export default function LoginPage() {
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { setMenuData, setSelectedKeys, setOpenKeys } = useSiderMenuStore();
+  const { getMenuList, setSelectedKeys, setOpenKeys } = useSiderMenuStore();
   const { login, loading, error } = useUserStore();
 
   const handleLogin = async (values: FormParams) => {
@@ -23,23 +22,20 @@ export default function LoginPage() {
       const { success, message: loginMessage } = await login(values.username, values.password);
 
       if (success) {
-        // 设置菜单数据
-        setMenuData(menulist);
-
+        const menuList = await getMenuList()
         // 处理重定向
         const redirectUrl = searchParams.get('from');
-        const firstGrandsonKey = getTreeFirstGrandson(menulist);
+        const firstGrandsonKey = getTreeFirstGrandson(menuList);
         const targetPath = redirectUrl || firstGrandsonKey;
 
         // 设置菜单状态
         setSelectedKeys([targetPath]);
         if (redirectUrl) {
           const matchRes = redirectUrl.match(/^\/[^\/]+/);
-          setOpenKeys(matchRes ? [matchRes[0]] : [menulist[0].key]);
+          setOpenKeys(matchRes ? [matchRes[0]] : [menuList[0].key]);
         } else {
-          setOpenKeys([menulist[0].key]);
+          setOpenKeys([menuList[0].key]);
         }
-
         // 存储首次访问路径
         localStorage.setItem('firstPath', firstGrandsonKey);
 

@@ -59,7 +59,7 @@ const getMenuItemList = (list: any[]) => {
 const LayoutApp: React.FC = () => {
   const [locale] = useState<Locale>(zhCN)
   const [collapsed, setCollapsed] = useState(false)
-  const { menuData, openKeys, setOpenKeys, selectedKeys, setSelectedKeys } = useSiderMenuStore()
+  const { menuList, openKeys, setOpenKeys, selectedKeys, setSelectedKeys } = useSiderMenuStore()
   const navigate = useNavigate()
   const location = useLocation()
   const preOpenkeys = useRef<any>([...openKeys])
@@ -144,7 +144,7 @@ const LayoutApp: React.FC = () => {
             onSelect={onSelect}
             openKeys={openKeys}
             selectedKeys={selectedKeys}
-            items={getMenuItemList(menuData)}
+            items={getMenuItemList(menuList)}
           />
         </Sider>
         <Layout>

@@ -5,6 +5,14 @@ export const getTreeFirstGrandson = (treeData: any, fields?: string): any => {
     fields = 'key'
   }
 
+  if (!treeData) {
+    return
+  }
+
+  if (isArray(treeData) && treeData.length === 0) {
+    return
+  }
+
   if (!isArray(treeData)) {
     treeData = [treeData]
   }
