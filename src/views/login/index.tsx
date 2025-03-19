@@ -19,9 +19,8 @@ export default function LoginPage() {
 
   const handleLogin = async (values: FormParams) => {
     try {
-      const { success, message: loginMessage } = await login(values.username, values.password);
-
-      if (success) {
+      const { code, msg: loginMessage } = await login(values.username, values.password);
+      if (code === 200) {
         const menuList = await getMenuList()
         // 处理重定向
         const redirectUrl = searchParams.get('from');

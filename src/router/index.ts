@@ -7,13 +7,10 @@ import Monitor from "../views/dashboard/monitor";
 import BasicForm from "../views/form/basic-form";
 import Articles from "../views/list/search/articles";
 import Projects from "../views/list/search/projects";
-import { fakeAuthProvider } from "../auth";
 
 // 验证 token 是否有效
 const validateToken = () => {
-  const token = fakeAuthProvider.getToken();
-  if (!token) return false;
-  
+  if (!localStorage.getItem('token')) return false;
   try {
     // 这里可以添加 token 解析和验证逻辑
     // 例如检查 token 是否过期
@@ -38,7 +35,6 @@ function protectedLoader({ request }: LoaderFunctionArgs) {
   // 验证 token
   if (!validateToken()) {
     // 清除所有认证信息
-    fakeAuthProvider.removeToken();
     localStorage.clear();
     return redirect(`/login?${params.toString()}`);
   }

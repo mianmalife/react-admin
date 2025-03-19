@@ -8,10 +8,10 @@ import {
 import type { MenuProps, ConfigProviderProps } from 'antd';
 import { ConfigProvider, Layout, Menu, theme, Space, Dropdown, Avatar, Button } from 'antd';
 import { Outlet, useNavigate, Link, useLocation } from 'react-router';
-import { fakeAuthProvider } from './auth';
 // import enUS from 'antd/locale/en_US'
 import zhCN from 'antd/locale/zh_CN'
 import dayjs from 'dayjs';
+import { useUserStore } from './store/user'
 import { useSiderMenuStore } from './store/menu';
 import SvgIcon from './components/SvgIcon';
 type Locale = ConfigProviderProps['locale']
@@ -59,6 +59,7 @@ const getMenuItemList = (list: any[]) => {
 const LayoutApp: React.FC = () => {
   const [locale] = useState<Locale>(zhCN)
   const [collapsed, setCollapsed] = useState(false)
+  const { userInfo, logout } = useUserStore()
   const { menuList, openKeys, setOpenKeys, selectedKeys, setSelectedKeys } = useSiderMenuStore()
   const navigate = useNavigate()
   const location = useLocation()
@@ -91,10 +92,8 @@ const LayoutApp: React.FC = () => {
   }
 
   const logOut = async () => {
-    const res = await fakeAuthProvider.signout()
-    if (res) {
-      await navigate('/')
-    }
+    await logout()
+    await navigate('/')
   }
 
   const optionOpera: MenuProps['items'] = [
@@ -154,7 +153,7 @@ const LayoutApp: React.FC = () => {
               <a onClick={(e) => e.preventDefault()}>
                 <Space>
                   <Avatar size="small" icon={<UserOutlined />} />
-                  {localStorage.getItem('username')}
+                  {userInfo?.userName}
                 </Space>
               </a>
             </Dropdown>

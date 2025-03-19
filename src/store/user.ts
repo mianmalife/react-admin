@@ -1,43 +1,39 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { fakeAuthProvider } from '@/auth';
 
 // 用户角色类型
 export type UserRole = 'admin' | 'user' | 'guest';
 
 // 用户权限类型
-export type Permission = 'read' | 'write' | 'delete' | 'manage';
+export type Permission = [];
 
 // 用户信息接口
 export interface UserInfo {
-  username: string;
+  userName: string;
   role: UserRole;
   permissions: Permission[];
-  avatar?: string;
-  email?: string;
-  lastLoginTime?: string;
+  loginTime?: string;
 }
 
 // 登录响应接口
 export interface LoginResponse {
-  success: boolean;
-  message: string;
+  code: number;
   data?: {
-    token: string;
-    userInfo: UserInfo;
+    access_token: string;
+    loginTime: number;
   };
+  msg: string
 }
 
 // 用户状态接口
 export interface UserState {
-  isAuthenticated: boolean;
   token: string | null;
   userInfo: UserInfo | null;
   loading: boolean;
   error: string | null;
 
   // Actions
-  setUserInfo: (info: UserInfo) => void;
+  setUserInfo: (info: UserInfo | null) => void;
   clearUserInfo: () => void;
   login: (username: string, password: string) => Promise<LoginResponse>;
   logout: () => Promise<void>;
@@ -47,7 +43,6 @@ export interface UserState {
 
 // 初始状态
 const initialState = {
-  isAuthenticated: false,
   token: null,
   userInfo: null,
   loading: false,
@@ -71,7 +66,6 @@ export const useUserStore = create<UserState>()(
 
       setUserInfo: (info) => {
         set({
-          isAuthenticated: true,
           userInfo: info
         });
         // 同步存储用户信息
@@ -97,51 +91,35 @@ export const useUserStore = create<UserState>()(
         try {
           setLoading(true);
           setError(null);
-
-          const res = await fakeAuthProvider.signin(username, password);
-
-          if (res.isAuthenticated) {
-            const token = fakeAuthProvider.getToken();
-
-            if (!token) {
-              throw new Error('获取token失败');
+          const res = await fetch('/api/auth/login', { method: 'POST', body: JSON.stringify({ username, password }) })
+          const loginRes = await res.json()
+          if (loginRes.code === 200) {
+            set({ token: loginRes.data.access_token })
+            localStorage.setItem('token', loginRes.data.access_token)
+            const usrRes = await fetch('/api/system/user/getInfo')
+            const usrData = await usrRes.json()
+            if (usrData.code === 200) {
+              console.log(usrData)
+              const { role, permissions, loginTime } = usrData.data
+              const { userName } = usrData.data.user
+              setUserInfo({ userName, role, permissions, loginTime })
+            } else {
+              setUserInfo(null)
             }
-
-            // 从localStorage获取用户信息，如果不存在则使用默认值
-            const storedUserInfo = localStorage.getItem('userInfo');
-            const userInfo = storedUserInfo ? JSON.parse(storedUserInfo) : {};
-
-            const userData: UserInfo = {
-              username,
-              role: userInfo.role || 'user',
-              permissions: userInfo.permissions || ['read'],
-              lastLoginTime: new Date().toISOString()
-            };
-
-            // 设置用户信息和token
-            setUserInfo(userData);
-            set({ token });
-            localStorage.setItem('token', token);
-            return {
-              success: true,
-              message: '登录成功',
-              data: {
-                token,
-                userInfo: userData
-              }
-            };
+          } else {
+            setError(loginRes.msg)
           }
-          setError(res.message);
-          return {
-            success: false,
-            message: res.message
-          };
+          return loginRes
         } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : '登录失败，请稍后重试';
-          setError(errorMessage);
+          console.log(error)
+          setError('登录失败，请稍后重试');
           return {
-            success: false,
-            message: errorMessage
+            code: 400,
+            data: {
+              access_token: '',
+              loginTime: 0,
+            },
+            msg: '登录失败，请稍后重试'
           };
         } finally {
           setLoading(false);
@@ -150,16 +128,16 @@ export const useUserStore = create<UserState>()(
 
       logout: async () => {
         const { setLoading, setError, clearUserInfo } = get();
-
         try {
           setLoading(true);
           setError(null);
-
-          await fakeAuthProvider.signout();
-          clearUserInfo();
+          const res = await fetch('/api/auth/logOut', { method: 'POST' })
+          const data = await res.json()
+          if (data.code === 200) {
+            clearUserInfo();
+          }
         } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : '登出失败，请稍后重试';
-          setError(errorMessage);
+          setError('登出失败，请稍后重试');
           console.error('Logout failed:', error);
         } finally {
           setLoading(false);
@@ -169,7 +147,6 @@ export const useUserStore = create<UserState>()(
     {
       name: STORAGE_KEY,
       partialize: (state) => ({
-        isAuthenticated: state.isAuthenticated,
         token: state.token,
         userInfo: state.userInfo
       }),

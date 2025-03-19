@@ -1,6 +1,6 @@
 import { setupWorker } from 'msw/browser'
-import { handlerMenus } from './mockMenu'
+import { handlers } from './auth'
 
-export const worker = setupWorker(...handlerMenus)
+export const worker = setupWorker(...handlers)
 
 export default worker
