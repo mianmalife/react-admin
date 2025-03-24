@@ -55,7 +55,7 @@ export default function LoginPage() {
       <div className="hidden md:flex flex-1 bg-gradient-to-br from-blue-500 to-violet-500 items-center justify-center relative overflow-hidden">
         <div className="absolute w-full h-full bg-white/10 backdrop-blur-sm" />
         <div className="relative z-1 text-center text-white">
-          <h1 className="text-5xl font-bold mb-4">React Admin</h1>
+          <h1 className="text-5xl font-bold mb-4">{import.meta.env.VITE_TITLE}</h1>
           <p className="text-xl text-white/80">现代化的后台管理系统</p>
         </div>
         {/* 装饰圆形 */}

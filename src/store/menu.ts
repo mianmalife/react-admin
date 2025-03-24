@@ -19,7 +19,7 @@ const initialState = {
 }
 
 export const useSiderMenuStore = create<MenuState>()(
-  persist((set, get) => ({
+  persist((set) => ({
     ...initialState,
     setMenuList: (menuList) => {
       set({ menuList })

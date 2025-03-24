@@ -148,7 +148,7 @@ const LayoutApp: React.FC = () => {
         </Sider>
         <Layout>
           <Header style={{ background: colorBgContainer }} className='p-0 fixed top-0 left-0 w-100% flex justify-between items-center px-24px z-20 border-b-#dcdfe6 border-b-solid border-b-1px'>
-            <div className="h-48px flex items-center font-size-18px" style={{ color: colorPrimary }}>React Admin</div>
+            <div className="h-48px flex items-center font-size-18px" style={{ color: colorPrimary }}>{import.meta.env.VITE_TITLE}</div>
             <Dropdown menu={{ items: optionOpera }}>
               <a onClick={(e) => e.preventDefault()}>
                 <Space>

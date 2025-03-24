@@ -1,3 +1,4 @@
+import { fetchGet, fetchPost } from '@/shared/fetch';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
@@ -91,15 +92,14 @@ export const useUserStore = create<UserState>()(
         try {
           setLoading(true);
           setError(null);
-          const res = await fetch('/api/auth/login', { method: 'POST', body: JSON.stringify({ username, password }) })
+          const res = await fetchPost({ url: '/api/auth/login', data: { username, password } })
           const loginRes = await res.json()
           if (loginRes.code === 200) {
             set({ token: loginRes.data.access_token })
             localStorage.setItem('token', loginRes.data.access_token)
-            const usrRes = await fetch('/api/system/user/getInfo')
+            const usrRes = await fetchGet({ url: '/api/system/user/getInfo' })
             const usrData = await usrRes.json()
             if (usrData.code === 200) {
-              console.log(usrData)
               const { role, permissions, loginTime } = usrData.data
               const { userName } = usrData.data.user
               setUserInfo({ userName, role, permissions, loginTime })
@@ -131,7 +131,7 @@ export const useUserStore = create<UserState>()(
         try {
           setLoading(true);
           setError(null);
-          const res = await fetch('/api/auth/logOut', { method: 'POST' })
+          const res = await fetchPost({ url: '/api/auth/logOut' })
           const data = await res.json()
           if (data.code === 200) {
             clearUserInfo();
