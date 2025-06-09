@@ -1,4 +1,5 @@
 import { fetchGet } from "@/shared/fetch"
+import { isArray } from "@/shared/util"
 import { use, useState, Suspense } from "react"
 import { Skeleton, Empty, Col, Row, Table, Image } from "antd"
 import ReactEChartsCore from "echarts-for-react/lib/core"
@@ -27,9 +28,8 @@ const defaultOption = {
   },
   grid: {
     left: '3%',
-    right: '4%',
     bottom: '3%',
-    containLabel: true
+    containLabel: true,
   },
   xAxis: [
     {
@@ -37,7 +37,7 @@ const defaultOption = {
       data: [],
       axisTick: {
         alignWithLabel: true
-      }
+      },
     }
   ],
   yAxis: [
@@ -98,7 +98,7 @@ const getAllProducts = async () => {
 
 function Chart({ promise }: { promise: Promise<{ products: Array<{ title: string, price: string }> }> }) {
   const res = use(promise)
-  if (Array.isArray(res?.products) && res.products.length > 0) {
+  if (isArray(res?.products) && res.products.length > 0) {
     const option = {
       ...defaultOption,
       xAxis: [
@@ -107,7 +107,8 @@ function Chart({ promise }: { promise: Promise<{ products: Array<{ title: string
           data: res.products.map(item => item.title),
           axisTick: {
             alignWithLabel: true
-          }
+          },
+          name: '机型',
         },
       ],
       series: [
@@ -138,7 +139,7 @@ function Chart({ promise }: { promise: Promise<{ products: Array<{ title: string
 
 function TableCop({ promise }: { promise: Promise<{ products: Array<{ id: number, title: string, price: string, thumbnail: string }> }> }) {
   const res = use(promise)
-  if (Array.isArray(res?.products) && res.products.length > 0) {
+  if (isArray(res?.products) && res.products.length > 0) {
     const dataSource = res.products.map(item => ({ ...item, key: item.id }))
     return (
       <Table tableLayout="fixed" scroll={{ y: 400 }} dataSource={dataSource} columns={columns} />

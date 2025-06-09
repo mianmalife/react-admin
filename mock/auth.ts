@@ -35,7 +35,7 @@ export const handlers = [
       msg: '操作成功'
     })
   }),
-  http.post('/api/auth/logOut', () => {
+  http.post('logout', () => {
     return HttpResponse.json({
       code: 200,
       msg: '操作成功'
