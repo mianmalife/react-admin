@@ -131,7 +131,7 @@ export const useUserStore = create<UserState>()(
         try {
           setLoading(true);
           setError(null);
-          const res = await fetchPost({ url: '/api/auth/logout' })
+          const res = await fetchPost({ url: '/api/user/logout' })
           const data = await res.json()
           if (data.code === 200) {
             clearUserInfo();
