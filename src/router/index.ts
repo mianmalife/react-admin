@@ -1,12 +1,5 @@
+import { lazy } from "react";
 import { createBrowserRouter, LoaderFunctionArgs, redirect } from "react-router";
-import Layout from "../layout";
-import LoginPage from "../views/login";
-import NotFoundPage from "../views/404";
-import Analysis from "../views/dashboard/analysis";
-import Monitor from "../views/dashboard/monitor";
-import BasicForm from "../views/form/basic-form";
-import Articles from "../views/list/search/articles";
-import Projects from "../views/list/search/projects";
 
 // 验证 token 是否有效
 const validateToken = () => {
@@ -45,7 +38,7 @@ function protectedLoader({ request }: LoaderFunctionArgs) {
 const router = createBrowserRouter([
   {
     path: '/',
-    Component: Layout,
+    Component: lazy(() => import('@/layout')),
     loader: protectedLoader,
     children: [
       {
@@ -54,13 +47,13 @@ const router = createBrowserRouter([
       },
       {
         path: 'analysis',
-        Component: Analysis
+        Component: lazy(() => import('@/views/dashboard/analysis'))
       },
     ]
   },
   {
     path: '/dashboard',
-    Component: Layout,
+    Component: lazy(() => import('@/layout')),
     loader: protectedLoader,
     children: [
       {
@@ -69,17 +62,17 @@ const router = createBrowserRouter([
       },
       {
         path: 'analysis',
-        Component: Analysis
+        Component: lazy(() => import('@/views/dashboard/analysis'))
       },
       {
         path: 'monitor',
-        Component: Monitor
+        Component: lazy(() => import('@/views/dashboard/monitor'))
       }
     ]
   },
   {
     path: '/form',
-    Component: Layout,
+    Component: lazy(() => import('@/layout')),
     loader: protectedLoader,
     children: [
       {
@@ -88,13 +81,13 @@ const router = createBrowserRouter([
       },
       {
         path: 'basic-form',
-        Component: BasicForm
+        Component: lazy(() => import('@/views/form/basic-form'))
       }
     ]
   },
   {
     path: '/list',
-    Component: Layout,
+    Component: lazy(() => import('@/layout')),
     loader: protectedLoader,
     children: [
       {
@@ -110,11 +103,11 @@ const router = createBrowserRouter([
           },
           {
             path: 'articles',
-            Component: Articles
+            Component: lazy(() => import('@/views/list/search/articles'))
           },
           {
             path: 'projects',
-            Component: Projects
+            Component: lazy(() => import('@/views/list/search/projects'))
           }
         ]
       }
@@ -122,12 +115,12 @@ const router = createBrowserRouter([
   },
   {
     path: '/login',
-    Component: LoginPage,
+    Component: lazy(() => import('@/views/login')),
     loader: loginLoader,
   },
   {
     path: '*',
-    Component: NotFoundPage
+    Component: lazy(() => import('@/views/404'))
   }
 ])
 
