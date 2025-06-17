@@ -39,6 +39,12 @@ export default defineConfig({
           'antd': ['@ant-design/v5-patch-for-react-19', 'antd', '@ant-design/icons'],
         }
       }
+    },
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: ['log']
+      }
     }
   }
 })

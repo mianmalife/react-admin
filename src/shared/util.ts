@@ -30,3 +30,11 @@ export const getTreeFirstGrandson = (treeData: any, fields?: string): any => {
     return null
   }
 }
+
+export const getPathPrefixes = (path: string) => {
+  if (typeof path !== 'string') return [];
+  // 清理路径：去掉首尾斜杠，统一分隔
+  const parts = path.replace(/^\/+|\/+$/g, '').split('/').filter(Boolean);
+  const list = parts.map((_, i) => '/' + parts.slice(0, i + 1).join('/'))
+  return list.slice(0, list.length - 1);
+}

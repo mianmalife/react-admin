@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
-  UserOutlined,
   LogoutOutlined,
   MenuUnfoldOutlined,
   MenuFoldOutlined,
@@ -11,8 +10,8 @@ import { Outlet, useNavigate, Link, useLocation } from 'react-router';
 // import enUS from 'antd/locale/en_US'
 import zhCN from 'antd/locale/zh_CN'
 import dayjs from 'dayjs';
-import { useUserStore } from './store/user'
-import { useSiderMenuStore } from './store/menu';
+import { userStore } from './store/auth'
+import { menuStore } from './store/menu';
 import SvgIcon from './components/SvgIcon';
 type Locale = ConfigProviderProps['locale']
 dayjs.locale('en')
@@ -55,15 +54,14 @@ const getMenuItemList = (list: any[]) => {
     return convertMenuItem(item)
   })
 }
-
 const LayoutApp: React.FC = () => {
   const [locale] = useState<Locale>(zhCN)
   const [collapsed, setCollapsed] = useState(false)
-  const { userInfo, logout } = useUserStore()
-  const { menuList, openKeys, setOpenKeys, selectedKeys, setSelectedKeys } = useSiderMenuStore()
+  const { username, image, loginOut } = userStore()
+  const { menuList, openKeys, setOpenKeys, selectedKeys, setSelectedKeys, clear } = menuStore() as any
   const navigate = useNavigate()
   const location = useLocation()
-  const preOpenkeys = useRef<any>([...openKeys])
+  const cacheOpenKeys = useRef<any>([...openKeys])
   const {
     token: { colorBgContainer, borderRadiusLG, colorPrimary },
   } = theme.useToken();
@@ -74,14 +72,12 @@ const LayoutApp: React.FC = () => {
 
   useEffect(() => {
     if (!collapsed) {
-      if (preOpenkeys.current.length > 0) {
-        setOpenKeys(preOpenkeys.current)
-      }
+      setOpenKeys(cacheOpenKeys.current)
     }
   }, [collapsed])
   const onOpenChange = (openKeys: string[]) => {
     if (openKeys.length > 0) {
-      preOpenkeys.current = openKeys
+      cacheOpenKeys.current = openKeys
     }
     setOpenKeys(openKeys)
   }
@@ -89,18 +85,21 @@ const LayoutApp: React.FC = () => {
   //@ts-ignore
   const onSelect = ({ item, key, keyPath, selectedKeys, domEvent }: any) => {
     setOpenKeys(keyPath)
+    cacheOpenKeys.current = keyPath
   }
 
-  const logOut = async () => {
-    await logout()
-    await navigate('/')
+  const handlerOut = () => {
+    loginOut()
+    clear()
+    localStorage.clear()
+    navigate('/login')
   }
 
   const optionOpera: MenuProps['items'] = [
     {
       key: '1',
       label: (
-        <a onClick={logOut}>
+        <a onClick={handlerOut}>
           <Space>
             <LogoutOutlined />退出登录
           </Space>
@@ -152,8 +151,8 @@ const LayoutApp: React.FC = () => {
             <Dropdown menu={{ items: optionOpera }}>
               <a onClick={(e) => e.preventDefault()}>
                 <Space>
-                  <Avatar size="small" icon={<UserOutlined />} />
-                  {userInfo?.userName}
+                  <Avatar size="small" src={image} />
+                  {username || ''}
                 </Space>
               </a>
             </Dropdown>

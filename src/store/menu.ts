@@ -1,16 +1,10 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { menulist } from '~/mock/menu'
 
-interface MenuState {
-  menuList: any[]
-  selectedKeys: string[]
-  openKeys: string[]
-  setMenuList: (menuList: any[]) => void
-  getMenuList: () => Promise<any>
-  setSelectedKeys: (selectedKeys: string[]) => void
-  setOpenKeys: (openKeys: string[]) => void
-  clearMenu: () => void
-}
+const menulistApi = () => new Promise(resolve => setTimeout(() => {
+  return resolve(menulist)
+}, 500))
 
 const initialState = {
   menuList: [],
@@ -18,30 +12,27 @@ const initialState = {
   openKeys: [],
 }
 
-export const useSiderMenuStore = create<MenuState>()(
-  persist((set) => ({
-    ...initialState,
-    setMenuList: (menuList) => {
-      set({ menuList })
-    },
-    getMenuList: async () => {
-      const res = await fetch('/api/auth/menus')
-      const json = await res.json()
-      set({ menuList: json })
-      return json
-    },
-    setSelectedKeys: (selectedKeys) => {
-      set({ selectedKeys })
-    },
-    setOpenKeys: (openKeys) => {
-      set({ openKeys })
-    },
-    clearMenu: () => {
-      set(initialState)
-    }
-  }),
-  {
-    name: 'menuData',
-  })
+export const menuStore = create<any>()(
+  persist(
+    (set) => ({
+      ...initialState,
+      getMenuList: async () => {
+        const res = await menulistApi()
+        set({ menuList: res })
+        return res
+      },
+      setSelectedKeys: (selectedKeys: Array<string>) => {
+        set({ selectedKeys })
+      },
+      setOpenKeys: (openKeys: Array<string>) => {
+        set({ openKeys })
+      },
+      clear: () => {
+        set(initialState)
+      }
+    }),
+    {
+      name: 'menuData',
+    })
 )
 

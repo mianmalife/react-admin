@@ -1,11 +1,12 @@
 import { useEffect, useRef } from "react";
 import * as echarts from "echarts/core"
-import { TitleComponent, TooltipComponent } from "echarts/components"
+import { TitleComponent, TooltipComponent, GridComponent } from "echarts/components"
 import { LineChart } from "echarts/charts";
 import { CanvasRenderer } from "echarts/renderers";
 echarts.use([
   TitleComponent,
   TooltipComponent,
+  GridComponent,
   LineChart,
   CanvasRenderer
 ])

@@ -1,37 +1,22 @@
 import { lazy } from "react";
-import { createBrowserRouter, LoaderFunctionArgs, redirect } from "react-router";
+import { createBrowserRouter, redirect, LoaderFunctionArgs } from "react-router";
 
-// 验证 token 是否有效
-const validateToken = () => {
-  if (!localStorage.getItem('token')) return false;
-  try {
-    // 这里可以添加 token 解析和验证逻辑
-    // 例如检查 token 是否过期
-    return true;
-  } catch (error) {
-    return false;
-  }
-};
-
-function loginLoader() {
-  if (validateToken()) {
-    return redirect('/');
+const hasTokenLoader = ({ request }: LoaderFunctionArgs) => {
+  const user = JSON.parse(localStorage.getItem('userInfo') || "{}")
+  if (!user.state?.accessToken) {
+    const params = new URLSearchParams()
+    const pathname = new URL(request.url).pathname
+    params.set('from', pathname)
+    return redirect(`/login?${params.toString()}`);
   }
   return null;
 }
 
-function protectedLoader({ request }: LoaderFunctionArgs) {
-  const params = new URLSearchParams();
-  const pathname = new URL(request.url).pathname;
-  params.set('from', pathname);
-
-  // 验证 token
-  if (!validateToken()) {
-    // 清除所有认证信息
-    localStorage.clear();
-    return redirect(`/login?${params.toString()}`);
+function loginLoader() {
+  const user = JSON.parse(localStorage.getItem('userInfo') || "{}")
+  if (user.state?.accessToken) {
+    return redirect('/');
   }
-
   return null;
 }
 
@@ -39,7 +24,7 @@ const router = createBrowserRouter([
   {
     path: '/',
     Component: lazy(() => import('@/layout')),
-    loader: protectedLoader,
+    loader: hasTokenLoader,
     children: [
       {
         index: true,
@@ -54,7 +39,7 @@ const router = createBrowserRouter([
   {
     path: '/dashboard',
     Component: lazy(() => import('@/layout')),
-    loader: protectedLoader,
+    loader: hasTokenLoader,
     children: [
       {
         index: true,
@@ -73,7 +58,7 @@ const router = createBrowserRouter([
   {
     path: '/form',
     Component: lazy(() => import('@/layout')),
-    loader: protectedLoader,
+    loader: hasTokenLoader,
     children: [
       {
         index: true,
@@ -88,7 +73,7 @@ const router = createBrowserRouter([
   {
     path: '/list',
     Component: lazy(() => import('@/layout')),
-    loader: protectedLoader,
+    loader: hasTokenLoader,
     children: [
       {
         index: true,

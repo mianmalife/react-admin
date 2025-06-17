@@ -1,9 +1,10 @@
+import { useState } from 'react';
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
-import { Button, Form, Input, Alert, message } from 'antd';
+import { Button, Form, Input, Alert } from 'antd';
 import { useNavigate, useSearchParams } from 'react-router';
-import { useSiderMenuStore } from '@/store/menu';
-import { useUserStore } from '@/store/user';
-import { getTreeFirstGrandson } from '@/shared/util';
+import { menuStore } from '@/store/menu';
+import { userStore } from '@/store/auth';
+import { getTreeFirstGrandson, getPathPrefixes } from '@/shared/util';
 
 interface FormParams {
   username: string;
@@ -11,17 +12,21 @@ interface FormParams {
 }
 
 export default function LoginPage() {
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { getMenuList, setSelectedKeys, setOpenKeys } = useSiderMenuStore();
-  const { login, loading, error } = useUserStore();
+  const { getMenuList, setSelectedKeys, setOpenKeys } = menuStore() as any;
+  const { loginIn } = userStore();
 
   const handleLogin = async (values: FormParams) => {
     try {
-      const { code, msg: loginMessage } = await login(values.username, values.password);
-      if (code === 200) {
+      setLoading(true)
+      const { accessToken } = await loginIn(values.username, values.password);
+      if (accessToken) {
         const menuList = await getMenuList()
+        setLoading(false)
         // 处理重定向
         const redirectUrl = searchParams.get('from');
         const firstGrandsonKey = getTreeFirstGrandson(menuList);
@@ -30,22 +35,23 @@ export default function LoginPage() {
         // 设置菜单状态
         setSelectedKeys([targetPath]);
         if (redirectUrl) {
-          const matchRes = redirectUrl.match(/^\/[^\/]+/);
-          setOpenKeys(matchRes ? [matchRes[0]] : [menuList[0].key]);
+          const openkeys = getPathPrefixes(redirectUrl)
+          setOpenKeys(openkeys);
         } else {
           setOpenKeys([menuList[0].key]);
         }
         // 存储首次访问路径
         localStorage.setItem('firstPath', firstGrandsonKey);
-
-        // 显示成功消息
-        message.open({ content: loginMessage, type: 'success' });
-
         // 跳转
         await navigate(targetPath);
+      } else {
+        setError('登录失败')
+        setLoading(false)
       }
     } catch (error) {
       console.error('Login error:', error);
+      setLoading(false)
+      setError('登录失败')
     }
   };
 
@@ -98,7 +104,7 @@ export default function LoginPage() {
             >
               <Input
                 prefix={<UserOutlined className="text-gray-300" />}
-                placeholder="用户名: admin"
+                placeholder="用户名"
                 allowClear
                 className="h-45px rounded-lg bg-gray-50 border-gray-200 hover:border-blue-400 transition-colors duration-300"
               />
@@ -114,7 +120,7 @@ export default function LoginPage() {
               <Input.Password
                 prefix={<LockOutlined className="text-gray-300" />}
                 type="password"
-                placeholder="密码: 123456"
+                placeholder="密码"
                 allowClear
                 className="h-45px rounded-lg bg-gray-50 border-gray-200 hover:border-blue-400 transition-colors duration-300"
               />
@@ -135,7 +141,7 @@ export default function LoginPage() {
 
           <div className="text-center space-y-2">
             <p className="text-gray-500 text-14px">
-              系统默认账号：admin / 123456
+              系统默认账号：emilys / emilyspass
             </p>
           </div>
         </div>
