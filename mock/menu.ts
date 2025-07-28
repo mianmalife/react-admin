@@ -7,12 +7,12 @@ export const menulist = [
     },
     children: [
       {
-        key: '/dashboard/analysis',
+        key: 'analysis',
         label: '分析页',
         children: undefined
       },
       {
-        key: '/dashboard/monitor',
+        key: 'monitor',
         label: '监控页',
         children: undefined
       },
@@ -26,7 +26,7 @@ export const menulist = [
     },
     children: [
       {
-        key: '/form/basic-form',
+        key: 'basic-form',
         label: '基础表单',
         children: undefined
       }
@@ -40,16 +40,16 @@ export const menulist = [
     },
     children: [
       {
-        key: '/list/search',
+        key: 'search',
         label: '搜索列表',
         children: [
           {
-            key: '/list/search/articles',
+            key: 'articles',
             label: '搜索列表(文章)',
             children: undefined
           },
           {
-            key: '/list/search/projects',
+            key: 'projects',
             label: '搜索列表(项目)',
             children: undefined
           }

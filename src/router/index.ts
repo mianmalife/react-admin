@@ -1,5 +1,6 @@
 import { lazy } from "react";
 import { createBrowserRouter, redirect, LoaderFunctionArgs } from "react-router";
+import Monitor from "@/views/dashboard/monitor";
 
 const hasTokenLoader = ({ request }: LoaderFunctionArgs) => {
   const user = JSON.parse(localStorage.getItem('userInfo') || "{}")
@@ -23,79 +24,74 @@ function loginLoader() {
 const router = createBrowserRouter([
   {
     path: '/',
-    Component: lazy(() => import('@/layout')),
+    Component: lazy(() => import('@/layout/layout')),
     loader: hasTokenLoader,
     children: [
       {
         index: true,
-        loader: () => redirect('/dashboard/analysis')
+        loader: () => redirect('/dashboard')
       },
       {
-        path: 'analysis',
-        Component: lazy(() => import('@/views/dashboard/analysis'))
-      },
-    ]
-  },
-  {
-    path: '/dashboard',
-    Component: lazy(() => import('@/layout')),
-    loader: hasTokenLoader,
-    children: [
-      {
-        index: true,
-        loader: () => redirect('/dashboard/analysis')
-      },
-      {
-        path: 'analysis',
-        Component: lazy(() => import('@/views/dashboard/analysis'))
-      },
-      {
-        path: 'monitor',
-        Component: lazy(() => import('@/views/dashboard/monitor'))
-      }
-    ]
-  },
-  {
-    path: '/form',
-    Component: lazy(() => import('@/layout')),
-    loader: hasTokenLoader,
-    children: [
-      {
-        index: true,
-        loader: () => redirect('/form/basic-form')
-      },
-      {
-        path: 'basic-form',
-        Component: lazy(() => import('@/views/form/basic-form'))
-      }
-    ]
-  },
-  {
-    path: '/list',
-    Component: lazy(() => import('@/layout')),
-    loader: hasTokenLoader,
-    children: [
-      {
-        index: true,
-        loader: () => redirect('/list/search/articles')
-      },
-      {
-        path: 'search',
+        path: 'dashboard',
         children: [
           {
             index: true,
-            loader: () => redirect('/list/search/articles')
+            loader: () => redirect('/dashboard/analysis')
           },
           {
-            path: 'articles',
-            Component: lazy(() => import('@/views/list/search/articles'))
+            path: 'analysis',
+            loader: hasTokenLoader,
+            Component: lazy(() => import('@/views/dashboard/analysis'))
           },
           {
-            path: 'projects',
-            Component: lazy(() => import('@/views/list/search/projects'))
+            path: 'monitor',
+            loader: hasTokenLoader,
+            Component: Monitor
           }
         ]
-      }
+      },
+      {
+        path: 'form',
+        children: [
+          {
+            index: true,
+            loader: () => redirect('/form/basic-form')
+          },
+          {
+            path: 'basic-form',
+            loader: hasTokenLoader,
+            Component: lazy(() => import('@/views/form/basic-form'))
+          }
+        ]
+      },
+      {
+        path: 'list',
+        children: [
+          {
+            index: true,
+            loader: () => redirect('/list/search')
+          },
+          {
+            path: 'search',
+            children: [
+              {
+                index: true,
+                loader: () => redirect('/list/search/articles')
+              },
+              {
+                path: 'articles',
+                loader: hasTokenLoader,
+                Component: lazy(() => import('@/views/list/search/articles'))
+              },
+              {
+                path: 'projects',
+                loader: hasTokenLoader,
+                Component: lazy(() => import('@/views/list/search/projects'))
+              }
+            ]
+          }
+        ]
+      },
     ]
   },
   {

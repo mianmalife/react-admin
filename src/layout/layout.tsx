@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   LogoutOutlined,
   MenuUnfoldOutlined,
@@ -10,9 +10,9 @@ import { Outlet, useNavigate, Link, useLocation } from 'react-router';
 // import enUS from 'antd/locale/en_US'
 import zhCN from 'antd/locale/zh_CN'
 import dayjs from 'dayjs';
-import { userStore } from './store/auth'
-import { menuStore } from './store/menu';
-import SvgIcon from './components/SvgIcon';
+import { userStore } from '@/store/auth'
+import { menuStore } from '@/store/menu';
+import SvgIcon from '@/components/SvgIcon';
 type Locale = ConfigProviderProps['locale']
 dayjs.locale('en')
 
@@ -61,31 +61,40 @@ const LayoutApp: React.FC = () => {
   const { menuList, openKeys, setOpenKeys, selectedKeys, setSelectedKeys, clear } = menuStore() as any
   const navigate = useNavigate()
   const location = useLocation()
-  const cacheOpenKeys = useRef<any>([...openKeys])
   const {
     token: { colorBgContainer, borderRadiusLG, colorPrimary },
   } = theme.useToken();
 
+  const setOpenMenuKeys = () => {
+    const KEY_LIST = location.pathname.split('/').filter(Boolean).slice(0, -1)
+    let prefix = '/'
+    let openMenuKey = []
+    for (let i = 0; i < KEY_LIST.length; i++) {
+      prefix += `${KEY_LIST[i]}/`
+      if (i === 0 || i === KEY_LIST.length - 1) {
+        openMenuKey.push(prefix.substring(0, prefix.length - 1))
+      } else {
+        openMenuKey.push(prefix)
+      }
+    }
+    setOpenKeys(openMenuKey)
+  }
+
   useEffect(() => {
     setSelectedKeys([location.pathname])
+    if (!collapsed) {
+      setOpenMenuKeys()
+    }
   }, [location])
 
   useEffect(() => {
     if (!collapsed) {
-      setOpenKeys(cacheOpenKeys.current)
+      setOpenMenuKeys()
     }
   }, [collapsed])
-  const onOpenChange = (openKeys: string[]) => {
-    if (openKeys.length > 0) {
-      cacheOpenKeys.current = openKeys
-    }
-    setOpenKeys(openKeys)
-  }
 
-  //@ts-ignore
-  const onSelect = ({ item, key, keyPath, selectedKeys, domEvent }: any) => {
-    setOpenKeys(keyPath)
-    cacheOpenKeys.current = keyPath
+  const onOpenChange = (openKeys: string[]) => {
+    setOpenKeys(openKeys)
   }
 
   const handlerOut = () => {
@@ -139,7 +148,6 @@ const LayoutApp: React.FC = () => {
             theme="light"
             mode="inline"
             onOpenChange={onOpenChange}
-            onSelect={onSelect}
             openKeys={openKeys}
             selectedKeys={selectedKeys}
             items={getMenuItemList(menuList)}

@@ -18,7 +18,7 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { getMenuList, setSelectedKeys, setOpenKeys } = menuStore() as any;
-  const { loginIn } = userStore();
+  const { loginIn, authClear } = userStore();
 
   const handleLogin = async (values: FormParams) => {
     try {
@@ -47,11 +47,13 @@ export default function LoginPage() {
       } else {
         setError('登录失败')
         setLoading(false)
+        authClear()
       }
     } catch (error) {
       console.error('Login error:', error);
       setLoading(false)
       setError('登录失败')
+      authClear()
     }
   };
 

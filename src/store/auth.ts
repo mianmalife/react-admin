@@ -54,6 +54,9 @@ export const userStore = create<any>()(
       },
       loginOut: () => {
         set(initState)
+      },
+      authClear: () => {
+        set(initState)
       }
     }),
     {
