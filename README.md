@@ -1,8 +1,8 @@
 # React Admin
 
-基于Vite@latest+React最新技术栈的中后台模板, 极简，改造上手简单。
+基于React最新技术栈的中后台模板, 极简，改造上手简单。
 
-- Vite 6.x
+- Vite7
 - react 19
 - react router v7
 - zustand 5.x
